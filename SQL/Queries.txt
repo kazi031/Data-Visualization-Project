@@ -1,0 +1,23 @@
+Q1:
+select * from Orders where country_name = 'Taiwan';
+
+Q2:
+
+select country_name, round(SUM(gmv_local),2) as total_gmv from Orders group by country_name;
+Q3:
+
+select B.country_name, ven.vendor_name, B.total_gmv from
+				(
+                select D.country_name, E.vendor_id, D.total_gmv from
+					(
+                    select country_name, max(A.total_gmv) as total_gmv from 
+		(select country_name, vendor_id, round(SUM(gmv_local),2) as total_gmv from Orders group by vendor_id) as A
+					 group by country_name
+                    ) as D, 
+                    (
+                    select country_name, vendor_id, round(SUM(gmv_local),2) as total_gmv from Orders group by vendor_id
+                    ) as E
+                    where E.total_gmv = D.total_gmv
+                ) as B, Vendors ven
+                where B.vendor_id = ven.vendor_id
+                order by B.country_name;
